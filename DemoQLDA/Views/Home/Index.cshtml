@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-<div class="container">
+@*<div class="container">
     <div class="row p-1">
         <div class="col-1">User</div>
         <div class="col-5"><input type="text" id="userInput" /></div>
@@ -27,4 +27,164 @@
     </div>
 </div>
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
-<script src="~/js/chat.js"></script>
+<script src="~/js/chat.js"></script>*@
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+
+<style>
+    .chessboard{
+        width:850px;
+        height:850px;
+        background-image: url("/Images/bancotuong.jpg");
+        position:absolute;
+    }
+    .chessnode {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+    }
+
+    .chessimgnode {
+        width: 50px;
+        height: 50px;
+    }
+</style>
+
+<div id="app" style="min-height:800px">
+    <div class="chessboard">
+        <div v-for="item in chessNode" class="chessnode" 
+             v-on:dragstart="dragStart"
+             v-on:dragend="dragEnd"
+            :id="item.id" v-bind:style="{ display: item.visible, top: item.top + 'px', left: item.left + 'px' }">
+            <img :src="'/' + item.src" class="chessimgnode" />
+        </div>
+    </div>
+</div>
+<script>
+    var matrix= [];
+    var app= new Vue({
+        el:'#app',
+        data: {
+            chessNode:[],
+            top:0,
+            left:0
+        },
+        methods:{
+            getChessNodes(){
+                axios({
+                    url: '/api/chess/loadChessBoard',
+                    method: 'GET',
+                    responseType: 'Json',
+
+                }).then((response) => {
+                    this.chessNode = response.data.chessNode;
+                    matrix = response.data.matrix;
+
+                });
+            },
+            getIndexByTopLeft(top,left,matrix){
+                var obj={};
+                for(var i = 0; i<matrix.length; i++){
+                    for( var j=0; j<matrix[i].length;j++){
+                        if(Math.abs(matrix[i][j].top - top) <20 && Math.abs(matrix[i][j].left - left)<20){
+                            obj.i = i ;
+                            obj.j = j;
+                            obj.id = matrix[i][j].id;
+                            return obj;
+                        }
+                    }
+                }
+                return null;
+            },
+            dragStart(event){
+                this.top = event.clientY;
+                this.left = event.clientX; 
+            },
+            dragEnd(event){
+                var id = event.currentTarget.id;
+                var moveLeft = event.clientX - this.left;
+                var moveTop = event.clientY - this.top;
+
+                moveLeft = moveLeft + event.currentTarget.offsetLeft;
+                moveTop = moveTop + event.currentTarget.offsetTop;
+                var nodeStart = this.getIndexByTopLeft(event.currentTarget.offsetTop,event.currentTarget.offsetLeft, matrix);
+                var nodeEnd = this.getIndexByTopLeft(moveTop,moveLeft,matrix);
+                if(nodeEnd==null){
+                    return;
+                   
+                }
+                var matrixNodeEnd = matrix[nodeEnd.i][nodeEnd.j];
+                var removeNode = null;
+                if(id.indexOf("ma")>=0){
+                    var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                    var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+                    if(!((gapI == 1 && gapJ==2) || (gapI ==2 && gapJ ==1))){
+                        return;
+                    }
+                    var flag = true;
+
+                    if (matrixNodeEnd.id!=""){
+                        if((id.indexOf("do")>=0&& matrixNodeEnd.id.indexOf("do")>=0)
+                            || (id.indexOf("den") >= 0 && matrixNodeEnd.di.indexOf("den") >= 0)) {
+                            return;
+                        }
+                        removeNode = {};
+                        removeNode.id = matrixNodeEnd.id
+                    }
+                    if (gapJ == 1) {
+                        if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 1][nodeStart.j].id != "") {
+                            return;
+                        }
+                        if (nodeEnd.i < nodeStart.i && matrix[nodeStart.i - 1][nodeStart.j].id != "") {
+                            return;
+                        }
+                    }
+                    if (gapI == 1) {
+                        if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][nodeStart.j - 1].id != "") {
+                            return;
+                        }
+                        if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][nodeStart.j + 1].id != "") {
+                            return;
+                        }
+                    }
+                }
+                var para = [{ id: id, fromi: nodeStart.i, fromj: nodeStart.j, toi: nodeEnd.i, toj: nodeEnd.j}]
+                if(removeNode!=null){
+                    para.push(removeNode);
+                }
+                axios({
+                    url: '/api/chess/movechess',
+                    method: 'POST',
+                    responseType: 'Json',
+                    data: para
+
+                }).then((response) => {
+
+
+                });
+            }
+        },
+        mounted:function(){
+            this.getChessNodes();
+            var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+            connection.on("ReceiveChessMove", function (message) {
+                console.log(message);
+                var res = JSON.parse(message);
+                var obj = document.getElementById(res[0].id);
+                var nodeEnd = matrix[res[0].toi][res[0].toj]
+                obj.style.top = nodeEnd.top + 'px';
+                obj.style.left = nodeEnd.left + 'px';
+
+                matrix[res[0].fromi][res[0].fromj].id="";
+                matrix[res[0].toi][res[0].toj].id = res[0].id;
+                if(res.length>1){
+                    var temp = document.getElementById(res[1].id);
+                    temp.style.display="none";
+                }
+            });
+            connection.start();
+        }
+    });
+</script>
