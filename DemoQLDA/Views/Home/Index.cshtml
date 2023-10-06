@@ -117,6 +117,7 @@
                 }
                 var matrixNodeEnd = matrix[nodeEnd.i][nodeEnd.j];
                 var removeNode = null;
+
                 if(id.indexOf("ma")>=0){
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
                     var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
@@ -197,7 +198,7 @@
                 if (id.indexOf("si") >= 0) {
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
                     var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeStart.i <= 2)||(nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeStart.i >= 7))) {
+                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
                         return;
                     }
                     if (!(gapI == 1 && gapJ == 1)) {
@@ -219,10 +220,10 @@
                 if (id.indexOf("chutuong") >= 0) {
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
                     var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if (!((gapI == 0 && gapJ == 1) || (gapI == 1 && gapJ == 0))) {
+                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
                         return;
                     }
-                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeStart.i >= 0 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeStart.i >= 7 && nodeEnd.i <= 9 && nodeEnd.i >= 7))) {
+                    if (!((gapI == 0 && gapJ == 1) || (gapI == 1 && gapJ == 0))) {
                         return;
                     }
                     var flag = true;
@@ -235,25 +236,35 @@
                         removeNode = {};
                         removeNode.id = matrixNodeEnd.id
                     }
-                    if (gapJ == 1) {
-                        if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 0][nodeStart.j].id != "") {
-                            return;
-                        }
-                        if (nodeEnd.i < nodeStart.i && matrix[nodeStart.i - 0][nodeStart.j].id != "") {
-                            return;
-                        }
-                    }
-                    if (gapI == 1) {
-                        if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][nodeStart.j - 0].id != "") {
-                            return;
-                        }
-                        if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][nodeStart.j + 0].id != "") {
-                            return;
-                        }
-                    }
+                    
 
                 }
+                //Phần code quân tốt
+                if (id.indexOf("tot") >= 0) {
+                    var gapI = nodeEnd.i - nodeStart.i;
+                    var gapJ = nodeEnd.j - nodeStart.j;
+                    if(id.indexOf("do")>=0){
+                        if (!(((nodeEnd.i <= 4) && (gapI == 1 && gapJ == 0)) || ((nodeEnd.i > 4) && ((gapI == 1 && gapJ == 0) || (gapI == -1 && gapJ == 0) || (gapI == 0 && gapJ == 1) || (gapI == 0 && gapJ == -1))))) {
+                            return;
+                        }
+                    }
+                    if (id.indexOf("den") >= 0) {
+                        if (!(((nodeEnd.i >= 5) && (gapI ==  -1 && gapJ == 0)) || ((nodeEnd.i < 5) && ((gapI == 1 && gapJ == 0) || (gapI == -1 && gapJ == 0) || (gapI == 0 && gapJ == 1) || (gapI == 0 && gapJ == -1))))) {
+                            return;
+                        }
+                    }
 
+                    var flag = true;
+
+                    if (matrixNodeEnd.id != "") {
+                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
+                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                            return;
+                        }
+                        removeNode = {};
+                        removeNode.id = matrixNodeEnd.id;
+                    }
+                }
                 var para = [{ id: id, fromi: nodeStart.i, fromj: nodeStart.j, toi: nodeEnd.i, toj: nodeEnd.j}]
                 if(removeNode!=null){
                     para.push(removeNode);
