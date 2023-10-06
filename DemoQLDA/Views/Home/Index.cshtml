@@ -126,12 +126,12 @@
                     var flag = true;
 
                     if (matrixNodeEnd.id!=""){
-                        if((id.indexOf("do")>=0&& matrixNodeEnd.id.indexOf("do")>=0)
-                            || (id.indexOf("den") >= 0 && matrixNodeEnd.di.indexOf("den") >= 0)) {
+                        if((id.indexOf("do")>=0 && matrixNodeEnd.id.indexOf("do")>=0)
+                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
                             return;
                         }
                         removeNode = {};
-                        removeNode.id = matrixNodeEnd.id
+                        removeNode.id = matrixNodeEnd.id;
                     }
                     if (gapJ == 1) {
                         if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 1][nodeStart.j].id != "") {
@@ -148,6 +148,49 @@
                         if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][nodeStart.j + 1].id != "") {
                             return;
                         }
+                    }
+                }
+                //Phần code quân xe của Trung
+                if (id.indexOf("xe") >= 0) {
+                    var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                    var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+                    if(!((gapI >=1 && gapJ==0) || (gapI ==0 && gapJ >=1))){
+                        return;
+                    }
+                    var flag = true;
+
+                    if (matrixNodeEnd.id != "") {
+                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
+                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                            return;
+                        }
+                        removeNode = {};
+                        removeNode.id = matrixNodeEnd.id;
+                    }
+                    if (gapJ >= 1) {
+                        var minJ = Math.min(nodeStart.j, nodeEnd.j);
+                        var maxJ = Math.max(nodeStart.j, nodeEnd.j);
+                        for (let j = minJ + 1; j < maxJ; j++) {
+                            if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][j].id != "") {
+                                return;
+                            }
+                            if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][j].id != "") {
+                                return;
+                            }
+                        }
+                    }
+                    if (gapI >= 1) {
+                        var minI = Math.min(nodeStart.i, nodeEnd.i);
+                        var maxI = Math.max(nodeStart.i, nodeEnd.i);
+                        for (let i = minI+1; i < maxI; i++) {
+                            if (nodeEnd.i < nodeStart.i && matrix[i][nodeStart.j].id != ""  ) {
+                                return;
+                            }
+                            if (nodeEnd.i > nodeStart.i && matrix[i][nodeStart.j ].id != "") {
+                                return;
+                            }
+                        }
+                        
                     }
                 }
                 var para = [{ id: id, fromi: nodeStart.i, fromj: nodeStart.j, toi: nodeEnd.i, toj: nodeEnd.j}]
