@@ -197,7 +197,7 @@
                 if (id.indexOf("si") >= 0) {
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
                     var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeStart.i <= 2)||(nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeStart.i >= 7))) {
+                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
                         return;
                     }
                     if (!(gapI == 1 && gapJ == 1)) {
@@ -222,7 +222,7 @@
                     if (!((gapI == 0 && gapJ == 1) || (gapI == 1 && gapJ == 0))) {
                         return;
                     }
-                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeStart.i >= 0 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeStart.i >= 7 && nodeEnd.i <= 9 && nodeEnd.i >= 7))) {
+                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
                         return;
                     }
                     var flag = true;
@@ -235,22 +235,7 @@
                         removeNode = {};
                         removeNode.id = matrixNodeEnd.id
                     }
-                    if (gapJ == 1) {
-                        if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 0][nodeStart.j].id != "") {
-                            return;
-                        }
-                        if (nodeEnd.i < nodeStart.i && matrix[nodeStart.i - 0][nodeStart.j].id != "") {
-                            return;
-                        }
-                    }
-                    if (gapI == 1) {
-                        if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][nodeStart.j - 0].id != "") {
-                            return;
-                        }
-                        if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][nodeStart.j + 0].id != "") {
-                            return;
-                        }
-                    }
+                    
 
                 }
 
