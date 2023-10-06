@@ -194,6 +194,59 @@
                         
                     }
                 }
+                //Phần code quân pháo của Duyên
+                if (id.indexOf("phao") >= 0) {
+                    var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                    var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+                    if (!((gapI >= 1 && gapJ == 0) || (gapI == 0 && gapJ >= 1))) {
+                        return;
+                    }
+
+
+                    if (matrixNodeEnd.id !== "") {
+                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
+                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                            return;
+                        }
+
+                        var minI = Math.min(nodeStart.i, nodeEnd.i);
+                        var maxI = Math.max(nodeStart.i, nodeEnd.i);
+                        var minJ = Math.min(nodeStart.j, nodeEnd.j);
+                        var maxJ = Math.max(nodeStart.j, nodeEnd.j);
+
+                        for (let i = minI + 1; i < maxI; i++) {
+                            for (let j = minJ + 1; j < maxJ; j++) {
+                                if (matrix[i][j].id !== "") {
+                                    return;
+                                }
+                            }
+                        }
+
+                        removeNode = {};
+                        removeNode.id = matrixNodeEnd.id;
+                    } else {
+                        if (gapJ === 1) {
+                            var minJ = Math.min(nodeStart.j, nodeEnd.j);
+                            var maxJ = Math.max(nodeStart.j, nodeEnd.j);
+                            for (let j = minJ + 1; j < maxJ; j++) {
+                                if (matrix[nodeStart.i][j].id != "") {
+                                    return;
+                                }
+                            }
+                        }
+
+                        if (gapI === 1) {
+                            var minI = Math.min(nodeStart.i, nodeEnd.i);
+                            var maxI = Math.max(nodeStart.i, nodeEnd.i);
+                            for (let i = minI + 1; i < maxI; i++) {
+                                if (matrix[i][nodeStart.j].id != "") {
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 //Phần code quân sĩ của Khang
                 if (id.indexOf("si") >= 0) {
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
@@ -223,7 +276,7 @@
                     if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
                         return;
                     }
-                    if (!((gapI == 0 && gapJ == 1) || (gapI == 1 && gapJ == 0))) {
+                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeStart.i >= 0 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeStart.i >= 7 && nodeEnd.i <= 9 && nodeEnd.i >= 7))) {
                         return;
                     }
                     var flag = true;
@@ -236,34 +289,23 @@
                         removeNode = {};
                         removeNode.id = matrixNodeEnd.id
                     }
-                    
-
-                }
-                //Phần code quân tốt
-                if (id.indexOf("tot") >= 0) {
-                    var gapI = nodeEnd.i - nodeStart.i;
-                    var gapJ = nodeEnd.j - nodeStart.j;
-                    if(id.indexOf("do")>=0){
-                        if (!(((nodeEnd.i <= 4) && (gapI == 1 && gapJ == 0)) || ((nodeEnd.i > 4) && ((gapI == 1 && gapJ == 0) || (gapI == -1 && gapJ == 0) || (gapI == 0 && gapJ == 1) || (gapI == 0 && gapJ == -1))))) {
+                    if (gapJ == 1) {
+                        if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 0][nodeStart.j].id != "") {
+                            return;
+                        }
+                        if (nodeEnd.i < nodeStart.i && matrix[nodeStart.i - 0][nodeStart.j].id != "") {
                             return;
                         }
                     }
-                    if (id.indexOf("den") >= 0) {
-                        if (!(((nodeEnd.i >= 5) && (gapI ==  -1 && gapJ == 0)) || ((nodeEnd.i < 5) && ((gapI == 1 && gapJ == 0) || (gapI == -1 && gapJ == 0) || (gapI == 0 && gapJ == 1) || (gapI == 0 && gapJ == -1))))) {
+                    if (gapI == 1) {
+                        if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][nodeStart.j - 0].id != "") {
+                            return;
+                        }
+                        if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][nodeStart.j + 0].id != "") {
                             return;
                         }
                     }
 
-                    var flag = true;
-
-                    if (matrixNodeEnd.id != "") {
-                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
-                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
-                            return;
-                        }
-                        removeNode = {};
-                        removeNode.id = matrixNodeEnd.id;
-                    }
                 }
                 var para = [{ id: id, fromi: nodeStart.i, fromj: nodeStart.j, toi: nodeEnd.i, toj: nodeEnd.j}]
                 if(removeNode!=null){
