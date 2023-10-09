@@ -102,32 +102,32 @@
                 this.top = event.clientY;
                 this.left = event.clientX; 
             },
-            dragEnd(event){
+            dragEnd(event) {
                 var id = event.currentTarget.id;
                 var moveLeft = event.clientX - this.left;
                 var moveTop = event.clientY - this.top;
 
                 moveLeft = moveLeft + event.currentTarget.offsetLeft;
                 moveTop = moveTop + event.currentTarget.offsetTop;
-                var nodeStart = this.getIndexByTopLeft(event.currentTarget.offsetTop,event.currentTarget.offsetLeft, matrix);
-                var nodeEnd = this.getIndexByTopLeft(moveTop,moveLeft,matrix);
-                if(nodeEnd==null){
+                var nodeStart = this.getIndexByTopLeft(event.currentTarget.offsetTop, event.currentTarget.offsetLeft, matrix);
+                var nodeEnd = this.getIndexByTopLeft(moveTop, moveLeft, matrix);
+                if (nodeEnd == null) {
                     return;
-                   
+
                 }
                 var matrixNodeEnd = matrix[nodeEnd.i][nodeEnd.j];
                 var removeNode = null;
 
-                if(id.indexOf("ma")>=0){
+                if (id.indexOf("ma") >= 0) {
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
                     var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if(!((gapI == 1 && gapJ==2) || (gapI ==2 && gapJ ==1))){
+                    if (!((gapI == 1 && gapJ == 2) || (gapI == 2 && gapJ == 1))) {
                         return;
                     }
                     var flag = true;
 
-                    if (matrixNodeEnd.id!=""){
-                        if((id.indexOf("do")>=0 && matrixNodeEnd.id.indexOf("do")>=0)
+                    if (matrixNodeEnd.id != "") {
+                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
                             || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
                             return;
                         }
@@ -155,7 +155,7 @@
                 if (id.indexOf("xe") >= 0) {
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
                     var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if(!((gapI >=1 && gapJ==0) || (gapI ==0 && gapJ >=1))){
+                    if (!((gapI >= 1 && gapJ == 0) || (gapI == 0 && gapJ >= 1))) {
                         return;
                     }
                     var flag = true;
@@ -183,15 +183,15 @@
                     if (gapI >= 1) {
                         var minI = Math.min(nodeStart.i, nodeEnd.i);
                         var maxI = Math.max(nodeStart.i, nodeEnd.i);
-                        for (let i = minI+1; i < maxI; i++) {
-                            if (nodeEnd.i < nodeStart.i && matrix[i][nodeStart.j].id != ""  ) {
+                        for (let i = minI + 1; i < maxI; i++) {
+                            if (nodeEnd.i < nodeStart.i && matrix[i][nodeStart.j].id != "") {
                                 return;
                             }
-                            if (nodeEnd.i > nodeStart.i && matrix[i][nodeStart.j ].id != "") {
+                            if (nodeEnd.i > nodeStart.i && matrix[i][nodeStart.j].id != "") {
                                 return;
                             }
                         }
-                        
+
                     }
                 }
                 //Phần code quân pháo của Duyên
@@ -257,7 +257,7 @@
                     if (!(gapI == 1 && gapJ == 1)) {
                         return;
                     }
-                    
+
                     var flag = true;
 
                     if (matrixNodeEnd.id != "") {
@@ -315,6 +315,59 @@
                         removeNode.id = matrixNodeEnd.id;
                     }
                 }
+                //Phần code tượng của Min
+                if (id.indexOf("tuong") >= 0) {
+
+                    var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                    var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+                    if (!(gapI == 2 && gapJ == 2)) {
+                        return;
+                    }
+                    if (id.indexOf("do") >= 0) {
+                        if (!((nodeEnd.i >= 0 && nodeEnd.i <= 4))) {
+                            return;
+                        }
+                    }
+                    if (id.indexOf("den") >= 0) {
+                        if (!(
+                            (nodeEnd.i >= 5 && nodeEnd.i <= 9))) {
+                            return;
+                        }
+                    }
+                    var flag = true;
+
+                    var positions = [];
+                    var i = nodeStart.i;
+                    var j = nodeStart.j;
+
+                    while (i != nodeEnd.i || j != nodeEnd.j) {
+                        if (i < nodeEnd.i) {
+                            i++;
+                        } else if (i > nodeEnd.i) {
+                            i--;
+                        }
+
+                        if (j < nodeEnd.j) {
+                            j++;
+                        } else if (j > nodeEnd.j) {
+                            j--;
+                        }
+
+                        positions.push({ i: i, j: j });
+                    }
+
+                    for (var position of positions) {
+                        if (matrix[position.i][position.j].id != "") {
+                            if ((id.indexOf("do") >= 0 && matrix[position.i][position.j].id.indexOf("do") >= 0)
+                                || (id.indexOf("den") >= 0 && matrix[position.i][position.j].id.indexOf("den") >= 0)) {
+                                return;
+                            }
+                            removeNode = {};
+                            removeNode.id = matrixNodeEnd.id;
+                        }
+                    }
+                }
+                //
                 var para = [{ id: id, fromi: nodeStart.i, fromj: nodeStart.j, toi: nodeEnd.i, toj: nodeEnd.j}]
                 if(removeNode!=null){
                     para.push(removeNode);
