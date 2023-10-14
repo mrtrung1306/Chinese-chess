@@ -19,20 +19,25 @@ namespace Libs.Data
             dbset = _dbContext.Set<T>();
         }
 
-        public virtual void Add(T entity)
+        public virtual T Add(T entity)
         {
-            dbset.Add(entity);
+            return dbset.Add(entity).Entity;
         }
-
-        public virtual void Update(T entity)
+        public virtual async Task<bool> AddAsync(T entity)
+        {
+            await dbset.AddAsync(entity);
+            return true;
+        }
+        public virtual T Update(T entity)
         {
             dbset.Attach(entity);
             _dbContext.Entry(entity).State = EntityState.Modified;
+            return entity;
         }
 
-        public virtual void Delete(T entity)
+        public virtual T Delete(T entity)
         {
-            dbset.Remove(entity);
+            return dbset.Remove(entity).Entity;
         }
 
         public virtual void Delete(Expression<Func<T, bool>> where)

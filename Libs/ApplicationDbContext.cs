@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace Libs
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
         public DbSet<Room> Room { get; set; }
         public DbSet<UserInRoom> UserInRoom { get; set; }
+        public DbSet<User> users { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }

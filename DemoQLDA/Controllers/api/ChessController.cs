@@ -2,6 +2,8 @@
 using DemoQLDA.Models;
 using Libs.Entity;
 using Libs.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -12,6 +14,8 @@ namespace DemoQLDA.Controllers.api
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "DepartmentPolicy")]
+
     public class ChessController : ControllerBase
     {
         private IWebHostEnvironment hostEnvironment;
@@ -30,6 +34,7 @@ namespace DemoQLDA.Controllers.api
         }
         [HttpPost]
         [Route("insertRoom")]
+        //[Authorize(Policy = "DepartmentPolicy")]
         public IActionResult insertRoom(string roomName)
         {
             Room room = new Room();
@@ -40,7 +45,7 @@ namespace DemoQLDA.Controllers.api
         }
         [HttpGet]
         [Route("getRoom")]
-        public IActionResult insertRoom()
+        public IActionResult getRoom()
         {
 
             List<Room> roomList = chessService.getRoomList();
@@ -56,8 +61,6 @@ namespace DemoQLDA.Controllers.api
             usInRoom.UserName = userName;
 
             chessService.insertUserInRoom(usInRoom);
-
-
 
             if (!cachesManage.UserInRoom.ContainsKey(roomId.ToString().ToLower()))
             {

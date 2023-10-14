@@ -29,9 +29,13 @@
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/chat.js"></script>*@
 
-<script src="~/js/signalr/dist/browser/signalr.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.css" integrity="sha512-0Nyh7Nf4sn+T48aTb6VFkhJe0FzzcOlqqZMahy/rhZ8Ii5Q9ZXG/1CbunUuEbfgxqsQfWXjnErKZosDSHVKQhQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.min.js" integrity="sha512-hkvXFLlESjeYENO4CNi69z3A1puvONQV5Uh+G4TUDayZxSLyic5Kba9hhuiNLbHqdnKNMk2PxXKm0v7KDnWkYA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <style>
     .chessboard{
@@ -39,6 +43,7 @@
         height:850px;
         background-image: url("/Images/bancotuong.jpg");
         position:absolute;
+       
     }
     .chessnode {
         position: absolute;
@@ -50,306 +55,495 @@
         width: 50px;
         height: 50px;
     }
-</style>
 
-<div id="app" style="min-height:800px">
-    <div class="chessboard">
-        <div v-for="item in chessNode" class="chessnode" 
-             v-on:dragstart="dragStart"
-             v-on:dragend="dragEnd"
-            :id="item.id" v-bind:style="{ display: item.visible, top: item.top + 'px', left: item.left + 'px' }">
-            <img :src="'/' + item.src" class="chessimgnode" />
+    .container {
+        width: 600px;
+        margin: 50px auto;
+    }
+
+    .nav {
+        float: left;
+        margin-left: -450px;
+        margin-top: -50px;
+    }
+
+    .containn {
+        float: right;
+        margin-right: -430px;
+        margin-top: 100px;
+    }
+
+    .emojionearea-picker {
+        left: auto !important;
+        right: 0;
+    }
+    .Text-top{
+        display: flex;
+    }
+
+    .item {
+        /* Các thiết lập cho các phần tử con trong container */
+        margin: 20px; /* Khoảng cách giữa các phần tử con */
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .custom-table th {
+            font-size: 14px; /* Kích thước của tiêu đề */
+            text-align: left;
+             /* Màu nền của hàng tiêu đề */
+            padding: 8px; /* Khoảng cách giữa nội dung và viền của ô */
+            border-bottom: 2px solid #000; /* Viền dưới của tiêu đề */
+        }
+
+        .custom-table td {
+            padding: 8px; /* Khoảng cách giữa nội dung và viền của ô */
+            border-bottom: 1px solid #ddd; /* Viền dưới của ô */
+        }
+
+
+   
+    
+
+</style>
+<div class="nav">
+    <div id="app" style="min-height:800px">
+        <div class="chessboard">
+            <div v-for="item in chessNode" class="chessnode" 
+                    v-on:dragstart="dragStart"
+                    v-on:dragend="dragEnd"
+                :id="item.id" v-bind:style="{ display: item.visible, top: item.top + 'px', left: item.left + 'px' }">
+                <img :src="'/' + item.src" class="chessimgnode" />
+            </div>
         </div>
     </div>
-</div>
-<script>
-    var matrix= [];
-    var app= new Vue({
-        el:'#app',
-        data: {
-            chessNode:[],
-            top:0,
-            left:0
-        },
-        methods:{
-            getChessNodes(){
-                axios({
-                    url: '/api/chess/loadChessBoard',
-                    method: 'GET',
-                    responseType: 'Json',
-
-                }).then((response) => {
-                    this.chessNode = response.data.chessNode;
-                    matrix = response.data.matrix;
-
-                });
+    <script>
+        var matrix= [];
+        var app= new Vue({
+            el:'#app',
+            data: {
+                chessNode:[],
+                top:0,
+                left:0
             },
-            getIndexByTopLeft(top,left,matrix){
-                var obj={};
-                for(var i = 0; i<matrix.length; i++){
-                    for( var j=0; j<matrix[i].length;j++){
-                        if(Math.abs(matrix[i][j].top - top) <20 && Math.abs(matrix[i][j].left - left)<20){
-                            obj.i = i ;
-                            obj.j = j;
-                            obj.id = matrix[i][j].id;
-                            return obj;
+            methods:{
+                getChessNodes(){
+                    axios({
+                        url: '/api/chess/loadChessBoard',
+                        method: 'GET',
+                        responseType: 'Json',
+
+                    }).then((response) => {
+                        this.chessNode = response.data.chessNode;
+                        matrix = response.data.matrix;
+
+                    });
+                },
+                getIndexByTopLeft(top,left,matrix){
+                    var obj={};
+                    for(var i = 0; i<matrix.length; i++){
+                        for( var j=0; j<matrix[i].length;j++){
+                            if(Math.abs(matrix[i][j].top - top) <20 && Math.abs(matrix[i][j].left - left)<20){
+                                obj.i = i ;
+                                obj.j = j;
+                                obj.id = matrix[i][j].id;
+                                return obj;
+                            }
                         }
                     }
-                }
-                return null;
-            },
-            dragStart(event){
-                this.top = event.clientY;
-                this.left = event.clientX; 
-            },
-            dragEnd(event){
-                var id = event.currentTarget.id;
-                var moveLeft = event.clientX - this.left;
-                var moveTop = event.clientY - this.top;
+                    return null;
+                },
+                dragStart(event){
+                    this.top = event.clientY;
+                    this.left = event.clientX; 
+                },
+                dragEnd(event){
+                    var id = event.currentTarget.id;
+                    var moveLeft = event.clientX - this.left;
+                    var moveTop = event.clientY - this.top;
 
-                moveLeft = moveLeft + event.currentTarget.offsetLeft;
-                moveTop = moveTop + event.currentTarget.offsetTop;
-                var nodeStart = this.getIndexByTopLeft(event.currentTarget.offsetTop,event.currentTarget.offsetLeft, matrix);
-                var nodeEnd = this.getIndexByTopLeft(moveTop,moveLeft,matrix);
-                if(nodeEnd==null){
-                    return;
+                    moveLeft = moveLeft + event.currentTarget.offsetLeft;
+                    moveTop = moveTop + event.currentTarget.offsetTop;
+                    var nodeStart = this.getIndexByTopLeft(event.currentTarget.offsetTop,event.currentTarget.offsetLeft, matrix);
+                    var nodeEnd = this.getIndexByTopLeft(moveTop,moveLeft,matrix);
+                    if(nodeEnd==null){
+                        return;
                    
-                }
-                var matrixNodeEnd = matrix[nodeEnd.i][nodeEnd.j];
-                var removeNode = null;
+                    }
+                    var matrixNodeEnd = matrix[nodeEnd.i][nodeEnd.j];
+                    var removeNode = null;
 
-                if(id.indexOf("ma")>=0){
-                    var gapI = Math.abs(nodeEnd.i - nodeStart.i);
-                    var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if(!((gapI == 1 && gapJ==2) || (gapI ==2 && gapJ ==1))){
-                        return;
-                    }
-                    var flag = true;
+                    if(id.indexOf("ma")>=0){
+                        var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                        var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+                        if(!((gapI == 1 && gapJ==2) || (gapI ==2 && gapJ ==1))){
+                            return;
+                        }
+                        var flag = true;
 
-                    if (matrixNodeEnd.id!=""){
-                        if((id.indexOf("do")>=0 && matrixNodeEnd.id.indexOf("do")>=0)
-                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
-                            return;
-                        }
-                        removeNode = {};
-                        removeNode.id = matrixNodeEnd.id;
-                    }
-                    if (gapJ == 1) {
-                        if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 1][nodeStart.j].id != "") {
-                            return;
-                        }
-                        if (nodeEnd.i < nodeStart.i && matrix[nodeStart.i - 1][nodeStart.j].id != "") {
-                            return;
-                        }
-                    }
-                    if (gapI == 1) {
-                        if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][nodeStart.j - 1].id != "") {
-                            return;
-                        }
-                        if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][nodeStart.j + 1].id != "") {
-                            return;
-                        }
-                    }
-                }
-                //Phần code quân xe của Trung
-                if (id.indexOf("xe") >= 0) {
-                    var gapI = Math.abs(nodeEnd.i - nodeStart.i);
-                    var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if(!((gapI >=1 && gapJ==0) || (gapI ==0 && gapJ >=1))){
-                        return;
-                    }
-                    var flag = true;
-
-                    if (matrixNodeEnd.id != "") {
-                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
-                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
-                            return;
-                        }
-                        removeNode = {};
-                        removeNode.id = matrixNodeEnd.id;
-                    }
-                    if (gapJ >= 1) {
-                        var minJ = Math.min(nodeStart.j, nodeEnd.j);
-                        var maxJ = Math.max(nodeStart.j, nodeEnd.j);
-                        for (let j = minJ + 1; j < maxJ; j++) {
-                            if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][j].id != "") {
+                        if (matrixNodeEnd.id!=""){
+                            if((id.indexOf("do")>=0 && matrixNodeEnd.id.indexOf("do")>=0)
+                                || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
                                 return;
                             }
-                            if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][j].id != "") {
+                            removeNode = {};
+                            removeNode.id = matrixNodeEnd.id;
+                        }
+                        if (gapJ == 1) {
+                            if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 1][nodeStart.j].id != "") {
+                                return;
+                            }
+                            if (nodeEnd.i < nodeStart.i && matrix[nodeStart.i - 1][nodeStart.j].id != "") {
+                                return;
+                            }
+                        }
+                        if (gapI == 1) {
+                            if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][nodeStart.j - 1].id != "") {
+                                return;
+                            }
+                            if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][nodeStart.j + 1].id != "") {
                                 return;
                             }
                         }
                     }
-                    if (gapI >= 1) {
-                        var minI = Math.min(nodeStart.i, nodeEnd.i);
-                        var maxI = Math.max(nodeStart.i, nodeEnd.i);
-                        for (let i = minI+1; i < maxI; i++) {
-                            if (nodeEnd.i < nodeStart.i && matrix[i][nodeStart.j].id != ""  ) {
-                                return;
-                            }
-                            if (nodeEnd.i > nodeStart.i && matrix[i][nodeStart.j ].id != "") {
-                                return;
-                            }
-                        }
-                        
-                    }
-                }
-                //Phần code quân pháo của Duyên
-                if (id.indexOf("phao") >= 0) {
-                    var gapI = Math.abs(nodeEnd.i - nodeStart.i);
-                    var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if (!((gapI >= 1 && gapJ == 0) || (gapI == 0 && gapJ >= 1))) {
-                        return;
-                    }
-
-
-                    if (matrixNodeEnd.id !== "") {
-                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
-                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                    //Phần code quân xe của Trung
+                    if (id.indexOf("xe") >= 0) {
+                        var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                        var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+                        if(!((gapI >=1 && gapJ==0) || (gapI ==0 && gapJ >=1))){
                             return;
                         }
+                        var flag = true;
 
-                        var minI = Math.min(nodeStart.i, nodeEnd.i);
-                        var maxI = Math.max(nodeStart.i, nodeEnd.i);
-                        var minJ = Math.min(nodeStart.j, nodeEnd.j);
-                        var maxJ = Math.max(nodeStart.j, nodeEnd.j);
-
-                        for (let i = minI + 1; i < maxI; i++) {
-                            for (let j = minJ + 1; j < maxJ; j++) {
-                                if (matrix[i][j].id !== "") {
-                                    return;
-                                }
+                        if (matrixNodeEnd.id != "") {
+                            if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
+                                || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                                return;
                             }
+                            removeNode = {};
+                            removeNode.id = matrixNodeEnd.id;
                         }
-
-                        removeNode = {};
-                        removeNode.id = matrixNodeEnd.id;
-                    } else {
-                        if (gapJ === 1) {
+                        if (gapJ >= 1) {
                             var minJ = Math.min(nodeStart.j, nodeEnd.j);
                             var maxJ = Math.max(nodeStart.j, nodeEnd.j);
                             for (let j = minJ + 1; j < maxJ; j++) {
-                                if (matrix[nodeStart.i][j].id != "") {
+                                if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][j].id != "") {
+                                    return;
+                                }
+                                if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][j].id != "") {
                                     return;
                                 }
                             }
                         }
-
-                        if (gapI === 1) {
+                        if (gapI >= 1) {
                             var minI = Math.min(nodeStart.i, nodeEnd.i);
                             var maxI = Math.max(nodeStart.i, nodeEnd.i);
-                            for (let i = minI + 1; i < maxI; i++) {
-                                if (matrix[i][nodeStart.j].id != "") {
+                            for (let i = minI+1; i < maxI; i++) {
+                                if (nodeEnd.i < nodeStart.i && matrix[i][nodeStart.j].id != ""  ) {
+                                    return;
+                                }
+                                if (nodeEnd.i > nodeStart.i && matrix[i][nodeStart.j ].id != "") {
                                     return;
                                 }
                             }
+                        
                         }
                     }
-                }
+                    //Phần code quân pháo của Duyên
+                    if (id.indexOf("phao") >= 0) {
+                        var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                        var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
 
-                //Phần code quân sĩ của Khang
-                if (id.indexOf("si") >= 0) {
-                    var gapI = Math.abs(nodeEnd.i - nodeStart.i);
-                    var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
-                        return;
-                    }
-                    if (!(gapI == 1 && gapJ == 1)) {
-                        return;
-                    }
+                        if (!((gapI >= 1 && gapJ == 0) || (gapI == 0 && gapJ >= 1))) {
+                            return;
+                        }
+
+                        var flag = true;
+
+                        if (matrixNodeEnd.id !== "") {
+                            if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
+                                || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                                return;
+                            }
+
+                            var minI = Math.min(nodeStart.i, nodeEnd.i);
+                            var maxI = Math.max(nodeStart.i, nodeEnd.i);
+                            var minJ = Math.min(nodeStart.j, nodeEnd.j);
+                            var maxJ = Math.max(nodeStart.j, nodeEnd.j);
+
+                            var count = 0; 
+                            for (let i = minI + 1; i < maxI; i++) {
+                                if (nodeEnd.i < nodeStart.i && matrix[i][nodeStart.j].id != "") {
+                                    count ++;
+                                }
+                                if (nodeEnd.i > nodeStart.i && matrix[i][nodeStart.j].id != "") {
+                                    count++;
+                                }
+                            }
+                            for (let j = minJ + 1; j < maxJ; j++) {
+
+                                if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][j].id != "") {
+                                    count++;
+                                }
+                                if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][j].id != "") {
+                                    count ++;
+                                }
+                            }
+
+                            if (count != 1) {
+                                return;
+                            }
+                            removeNode = {};
+                            removeNode.id = matrixNodeEnd.id;
+                        }
+
                     
-                    var flag = true;
-
-                    if (matrixNodeEnd.id != "") {
-                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
-                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                    }
+                    //Phần code quân sĩ của Khang
+                    if (id.indexOf("si") >= 0) {
+                        var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                        var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+                        if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
                             return;
                         }
-                        removeNode = {};
-                        removeNode.id = matrixNodeEnd.id;
+                        if (!(gapI == 1 && gapJ == 1)) {
+                            return;
+                        }
+                    
+                        var flag = true;
+
+                        if (matrixNodeEnd.id != "") {
+                            if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
+                                || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                                return;
+                            }
+                            removeNode = {};
+                            removeNode.id = matrixNodeEnd.id;
+                        }
                     }
+                    ////Phần code Tướng của Anh
+                    if (id.indexOf("vua") >= 0) {
+                        var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                        var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+                        if (!((gapI == 0 && gapJ == 1) || (gapI == 1 && gapJ == 0))) {
+                            return;
+                        }
+                        if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
+                            return;
+                        }
+                    
+                        var flag = true;
+
+                        if (matrixNodeEnd.id != "") {
+                            if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
+                                || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                                return;
+                            }
+                            removeNode = {};
+                            removeNode.id = matrixNodeEnd.id
+                        }
+                    }
+                    //Phần Code Tốt của Trung
+                    if (id.indexOf("tot") >= 0) {
+                        var gapI = nodeEnd.i - nodeStart.i;
+                        var gapJ = nodeEnd.j - nodeStart.j;
+                        if (id.indexOf("do") >= 0) {
+                            if (!(((nodeEnd.i <= 4) && (gapI == 1 && gapJ == 0)) || ((nodeEnd.i > 4) && ((gapI == 1 && gapJ == 0) || (gapI == -1 && gapJ == 0) || (gapI == 0 && gapJ == 1) || (gapI == 0 && gapJ == -1))))) {
+                                return;
+                            }
+                        }
+                        if (id.indexOf("den") >= 0) {
+                            if (!(((nodeEnd.i >= 5) && (gapI == -1 && gapJ == 0)) || ((nodeEnd.i < 5) && ((gapI == 1 && gapJ == 0) || (gapI == -1 && gapJ == 0) || (gapI == 0 && gapJ == 1) || (gapI == 0 && gapJ == -1))))) {
+                                return;
+                            }
+                        }
+
+                        var flag = true;
+                        if (matrixNodeEnd.id != "") {
+                            if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
+                                || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                                return;
+                            }
+                            removeNode = {};
+                            removeNode.id = matrixNodeEnd.id;
+                        }
+                    }
+
+                    //Phần code tượng của Min
+                    if (id.indexOf("tuong") >= 0) {
+                        var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                        var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+                        if (!(gapI == 2 && gapJ == 2)) {
+                            return;
+                        }
+                        var flag = true;
+
+                        if (matrixNodeEnd.id != "") {
+                            if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
+                                || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                                return;
+                            }
+                            removeNode = {};
+                            removeNode.id = matrixNodeEnd.id;
+                        } 
+                        if (id.indexOf("do") >= 0) {
+                            if (!((nodeEnd.i <= 5))) {
+                                return;
+                            }
+                        }
+                        if (id.indexOf("den") >= 0) {
+                            if (!((nodeEnd.i >= 5))) {
+                                return;
+                            }
+                        }
+                        if (gapI == 2 && gapJ == 2) {
+                            if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 1][nodeStart.j + 1].id != "") {
+                                return;
+                            }
+                            if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 1][nodeStart.j - 1].id != "") {
+                                return;
+                            }
+                            if (nodeEnd.i < nodeStart.i && matrix[nodeStart.i - 1][nodeStart.j - 1].id != "") {
+                                return;
+                            }
+                            if (nodeEnd.i < nodeStart.i && matrix[nodeStart.i - 1][nodeStart.j + 1].id != "") {
+                                return;
+                            }
+                        }
+                    }
+                    var para = [{ id: id, fromi: nodeStart.i, fromj: nodeStart.j, toi: nodeEnd.i, toj: nodeEnd.j}]
+                    if(removeNode!=null){
+                        para.push(removeNode);
+                    }
+                    axios({
+                        url: '/api/chess/movechess',
+                        method: 'POST',
+                        responseType: 'Json',
+                        data: para
+
+                    }).then((response) => {
+
+
+                    });
                 }
-                ////Phần code Tướng của Anh
-                if (id.indexOf("chutuong") >= 0) {
-                    var gapI = Math.abs(nodeEnd.i - nodeStart.i);
-                    var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
-                        return;
-                    }
-                    if (!((gapI == 0 && gapJ == 1) || (gapI == 1 && gapJ == 0))) {
-                        return;
-                    }
-                    var flag = true;
+            },
+            mounted:function(){
+                this.getChessNodes();
+                var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+                connection.on("ReceiveChessMove", function (message) {
+                    console.log(message);
+                    var res = JSON.parse(message);
+                    var obj = document.getElementById(res[0].id);
+                    var nodeEnd = matrix[res[0].toi][res[0].toj]
+                    obj.style.top = nodeEnd.top + 'px';
+                    obj.style.left = nodeEnd.left + 'px';
 
-                    if (matrixNodeEnd.id != "") {
-                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
-                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
-                            return;
-                        }
-                        removeNode = {};
-                        removeNode.id = matrixNodeEnd.id
+                    matrix[res[0].fromi][res[0].fromj].id="";
+                    matrix[res[0].toi][res[0].toj].id = res[0].id;
+                    if(res.length>1){
+                        var temp = document.getElementById(res[1].id);
+                        temp.style.display="none";
                     }
-                }
-                //Phần Code Tốt của Trung
-                if (id.indexOf("tot") >= 0) {
-                    var gapI = nodeEnd.i - nodeStart.i;
-                    var gapJ = nodeEnd.j - nodeStart.j;
-                    if (id.indexOf("do") >= 0) {
-                        if (!(((nodeEnd.i <= 4) && (gapI == 1 && gapJ == 0)) || ((nodeEnd.i > 4) && ((gapI == 1 && gapJ == 0) || (gapI == -1 && gapJ == 0) || (gapI == 0 && gapJ == 1) || (gapI == 0 && gapJ == -1))))) {
-                            return;
-                        }
-                    }
-                    if (id.indexOf("den") >= 0) {
-                        if (!(((nodeEnd.i >= 5) && (gapI == -1 && gapJ == 0)) || ((nodeEnd.i < 5) && ((gapI == 1 && gapJ == 0) || (gapI == -1 && gapJ == 0) || (gapI == 0 && gapJ == 1) || (gapI == 0 && gapJ == -1))))) {
-                            return;
-                        }
-                    }
-
-                    var flag = true;
-                    if (matrixNodeEnd.id != "") {
-                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
-                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
-                            return;
-                        }
-                        removeNode = {};
-                        removeNode.id = matrixNodeEnd.id;
-                    }
-                }
-                var para = [{ id: id, fromi: nodeStart.i, fromj: nodeStart.j, toi: nodeEnd.i, toj: nodeEnd.j}]
-                if(removeNode!=null){
-                    para.push(removeNode);
-                }
-                axios({
-                    url: '/api/chess/movechess',
-                    method: 'POST',
-                    responseType: 'Json',
-                    data: para
-
-                }).then((response) => {
-
-
                 });
+                connection.start();
             }
-        },
-        mounted:function(){
-            this.getChessNodes();
-            var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
-            connection.on("ReceiveChessMove", function (message) {
-                console.log(message);
-                var res = JSON.parse(message);
-                var obj = document.getElementById(res[0].id);
-                var nodeEnd = matrix[res[0].toi][res[0].toj]
-                obj.style.top = nodeEnd.top + 'px';
-                obj.style.left = nodeEnd.left + 'px';
+        });
 
-                matrix[res[0].fromi][res[0].fromj].id="";
-                matrix[res[0].toi][res[0].toj].id = res[0].id;
-                if(res.length>1){
-                    var temp = document.getElementById(res[1].id);
-                    temp.style.display="none";
+    </script>
+</div>
+<div class="containn">
+    <div class="Text-top">
+        <div class="item">
+            Bàn cờ 01
+        </div>
+        <div class="item">
+            10p
+        </div>
+        <div class="item">
+            <div class="item-ch" style="padding-left: 20pc;">
+                <button >+</button>
+                <button>-</button>
+            </div>
+        </div>
+    </div>
+    <div class="Score">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Score 1</th>
+                    <th>Score 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="contain">
+        <div class="container">
+            <div class="row p-1">
+                <div class="col-1">User</div>
+                <div class="col-5"><input type="text" id="userInput" /></div>
+            </div>
+            <div class="row p-1">
+                <div class="col-1">Message</div>
+                @*<div class="col-5"><input type="text" class="w-100" id="messageInput" /></div>*@
+                <textarea id="MyText"></textarea>
+            </div>
+            <div class="row p-1">
+                <div class="col-6 text-end">
+                    <input type="button" id="sendButton" value="Send Message" />
+                </div>
+            </div>
+            <div class="row p-1">
+                <div class="col-6">
+                    <hr />
+                </div>
+            </div>
+            <div class="row p-1">
+                <div class="col-6">
+                    <ul id="messagesList"></ul>
+                </div>
+            </div>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.min.js" integrity="sha512-hkvXFLlESjeYENO4CNi69z3A1puvONQV5Uh+G4TUDayZxSLyic5Kba9hhuiNLbHqdnKNMk2PxXKm0v7KDnWkYA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+   
+        <!-- jQuery -->
+        <script type="text/javascript">
+            $('#MyText').emojioneArea({
+                pickerPosition: 'right'
+            });
+
+        </script>
+        <script>
+
+            var lastMessageTime = 0;
+            $('#sendButton').click(function () {
+                var currentTime = new Date().getTime();
+                if (currentTime - lastMessageTime >= 10000) { // Giới hạn 10 giây (10000 miliseconds)
+                    var userInput = $('#userInput').val();
+                    var message = $('#MyText').val();
+
+                    if (userInput && message) {
+                        $('#messagesList').append('<li><strong>' + userInput + ':</strong> ' + message + '</li>');
+                        lastMessageTime = currentTime; // Cập nhật thời gian nhắn tin cuối cùng
+                    } else {
+                        alert('Vui lòng nhập tên người dùng và tin nhắn.');
+                    }
+                } else {
+                    alert('Vui lòng đợi 10 giây trước khi gửi tin nhắn tiếp theo.');
                 }
             });
-            connection.start();
-        }
-    });
-</script>
+        </script>
+        <script src="~/js/signalr/dist/browser/signalr.js"></script>
+        <script src="~/js/chat.js"></script>
+    </div>
+</div>
+
