@@ -18,7 +18,7 @@ namespace DemoQLDA.CacheManages
         {
             get
             {
-                Dictionary<string, List<UserInRoom>> userInRoomDic = (Dictionary<string, List<UserInRoom>>)memoryCache.Get("memoryCache");
+                Dictionary<string, List<UserInRoom>> userInRoomDic = (Dictionary<string, List<UserInRoom>>)memoryCache.Get("userInRoomCache");
                 if (userInRoomDic == null)
                 {
                     userInRoomDic = new Dictionary<string, List<UserInRoom>>();
@@ -37,9 +37,37 @@ namespace DemoQLDA.CacheManages
                             userInRoomTemp.Add(userInRoomList[i]);
                         }
                     }
-                    memoryCache.Set("memoryCache", userInRoomDic);
+                    memoryCache.Set("userInRoomCache", userInRoomDic);
                 }
                 return userInRoomDic;
+            }
+        }
+        public Dictionary<string, List<Room>> Room
+        {
+            get
+            {
+                Dictionary<string, List<Room>> userRoomDic = (Dictionary<string, List<Room>>)memoryCache.Get("roomCache");
+                if (userRoomDic == null)
+                {
+                    userRoomDic = new Dictionary<string, List<Room>>();
+                    List<Room> userInRoomList = chessService.getRoomList();
+                    for (int i = 0; i < userInRoomList.Count; i++)
+                    {
+                        if (!userRoomDic.ContainsKey(userInRoomList[i].Id.ToString().ToLower()))
+                        {
+                            List<Room> userRoomTemp = new List<Room>();
+                            userRoomTemp.Add(userInRoomList[i]);
+                            userRoomDic.Add(userInRoomList[i].Id.ToString().ToLower(), userRoomTemp);
+                        }
+                        else
+                        {
+                            List<Room> userInRoomTemp = userRoomDic[userInRoomList[i].Id.ToString().ToLower()];
+                            userInRoomTemp.Add(userInRoomList[i]);
+                        }
+                    }
+                    memoryCache.Set("roomCache", userRoomDic);
+                }
+                return userRoomDic;
             }
         }
     }

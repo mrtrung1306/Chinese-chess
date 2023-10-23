@@ -11,5 +11,8 @@ namespace Libs.Entity
         public Guid Id { get; set; }
         public Guid RoomId { get; set; }
         public string UserName { get; set; }
+
+        //public string firstUser { get; set; }
+        //public string secondUser { get; set; }
     }
 }

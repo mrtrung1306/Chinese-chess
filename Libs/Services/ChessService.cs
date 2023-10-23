@@ -44,9 +44,19 @@ namespace Libs.Services
         {
             return userInRoomRepository.getUserInRoomList(roomId);
         }
+        public List<UserInRoom> getRoomInUserList(string userName)
+        {
+            return userInRoomRepository.getRoomInUserList(userName);
+        }
         public List<UserInRoom> getUserInRoomList()
         {
             return userInRoomRepository.getUserInRoomList();
+        }
+        public void RemoveUserinRoom(Guid roomId, string userName)
+        {
+
+            userInRoomRepository.DeleteUserInRoomByName(roomId, userName);
+            Save();
         }
     }
 }

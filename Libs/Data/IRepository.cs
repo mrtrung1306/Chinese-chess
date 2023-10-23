@@ -4,9 +4,9 @@ namespace Libs.Data
 {
     public interface IRepository<T> where T : class
     {
-        void Add(T entity);
-        void Update(T entity);
-        void Delete(T entity);
+        T Add(T entity);
+        T Update(T entity);
+        T Delete(T entity);
         void Delete(Expression<Func<T, bool>> where);
 
         int Count(Expression<Func<T, bool>> where);

@@ -1,33 +1,63 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-@*<div class="container">
-    <div class="row p-1">
-        <div class="col-1">User</div>
-        <div class="col-5"><input type="text" id="userInput" /></div>
-    </div>
-    <div class="row p-1">
-        <div class="col-1">Message</div>
-        <div class="col-5"><input type="text" class="w-100" id="messageInput" /></div>
-    </div>
-    <div class="row p-1">
-        <div class="col-6 text-end">
-            <input type="button" id="sendButton" value="Send Message" />
+<link href="~/css/game.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<div class="containn">
+    <div class="Text-top">
+        <div class="item">
+            Bàn cờ 01
+        </div>
+        <div class="item">
+            <div class="item-ch" id="exit" >
+                <button v-on:click="RemoveInsertInRoom(roomId)">Thoát</button>
+            </div>
         </div>
     </div>
-    <div class="row p-1">
-        <div class="col-6">
-            <hr />
-        </div>
+    <div class="Score">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>
+                        <h1 class="main-playground-white-name player-name"><i class="fa fa-user" style="color: #f20202;"></i>player 1</h1>
+                    </th>
+                    <th><h1 class="main-playground-white-name player-name"><i class="fa fa-user"></i>player 2</h1></th>
+                </tr>
+            </thead>
+        </table>
     </div>
-    <div class="row p-1">
-        <div class="col-6">
-            <ul id="messagesList"></ul>
+    <div class="contain">
+        <div class="container">
+            <div class="row p-2">
+                <div class="col-1">User</div>
+                <div class="col-1"><input type="text" id="userInput" /></div>
+            </div>
+            <div class="game-chat-container chat-container">
+                <div class="game-chat-window-wrapper chat-window-wrapper" >
+                    <ul class="game-chat-window chat-window"id="messagesList"></ul>
+                </div>
+                <div class="game-chat-input-wrapper chat-input-wrapper">
+                    <input type="text" class="game-chat-input chat-input" placeholder="Type a message" autofocus id="MyText" />
+                    <button type="submit" class="game-chat-send-btn chat-send-btn game-btn" id="sendButton" value="Send Message">></button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<script src="~/js/signalr/dist/browser/signalr.js"></script>
-<script src="~/js/chat.js"></script>*@
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.css" integrity="sha512-0Nyh7Nf4sn+T48aTb6VFkhJe0FzzcOlqqZMahy/rhZ8Ii5Q9ZXG/1CbunUuEbfgxqsQfWXjnErKZosDSHVKQhQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.min.js" integrity="sha512-hkvXFLlESjeYENO4CNi69z3A1puvONQV5Uh+G4TUDayZxSLyic5Kba9hhuiNLbHqdnKNMk2PxXKm0v7KDnWkYA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- jQuery -->
+<script type="text/javascript">
+    $('#MyText').emojioneArea({
+        pickerPosition: 'right'
+    });
+</script>
+
+<script src="~/js/chat.js"></script>
 
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
@@ -46,22 +76,81 @@
         height: 50px;
     }
 
+    .container {
+        width: 600px;
+        margin: 50px auto;
+    }
+
+    .nav {
+        float: left;
+        margin-left: -450px;
+        margin-top: -50px;
+    }
+
+    .containn {
+        float: right;
+        margin-right: -430px;
+        margin-top: 100px;
+    }
+
+    .Text-top {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .item {
+        /* Các thiết lập cho các phần tử con trong container */
+        margin: 20px; /* Khoảng cách giữa các phần tử con */
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .custom-table th {
+            font-size: 14px; /* Kích thước của tiêu đề */
+            text-align: left;
+            /* Màu nền của hàng tiêu đề */
+            padding: 8px; /* Khoảng cách giữa nội dung và viền của ô */
+            border-bottom: 2px solid #000; /* Viền dưới của tiêu đề */
+        }
+
+        .custom-table td {
+            padding: 8px; /* Khoảng cách giữa nội dung và viền của ô */
+            border-bottom: 1px solid #ddd; /* Viền dưới của ô */
+        }
+
     .chessimgnode {
         width: 50px;
         height: 50px;
     }
+
+    .emojionearea {
+        width: 0%;
+    }
 </style>
 
-<div id="app" style="min-height:800px">
-    <div class="chessboard">
-        <div v-for="item in chessNode" class="chessnode" 
-             v-on:dragstart="dragStart"
-             v-on:dragend="dragEnd"
-            :id="item.id" v-bind:style="{ display: item.visible, top: item.top + 'px', left: item.left + 'px' }">
-            <img :src="'/' + item.src" class="chessimgnode" />
+<div class="nav">
+    <div id="app" style="min-height:800px">
+        <template v-if="userData" >
+        <div class="chessboard">
+            <div v-for="item in chessNode" class="chessnode" 
+                 v-on:dragstart="dragStart"
+                 v-on:dragend="dragEnd"
+                :id="item.id" v-bind:style="{ display: item.visible, top: item.top + 'px', left: item.left + 'px' }">
+                <img :src="'/' + item.src" class="chessimgnode" />
+            </div>
         </div>
+        </template>
+        <template v-else>
+            <button v-on:click="login">Login to play the game</button>
+        </template>
     </div>
 </div>
+<div id="default-route-url" data-url="@Url.Action("Login", "Home")"></div>
+
+
 <script>
     var matrix= [];
     var app= new Vue({
@@ -69,14 +158,19 @@
         data: {
             chessNode:[],
             top:0,
-            left:0
+            left:0,
+            userData: JSON.parse(localStorage.getItem('userData')),
         },
         methods:{
             getChessNodes(){
+                const token = JSON.parse(localStorage.getItem('userData'));
                 axios({
                     url: '/api/chess/loadChessBoard',
                     method: 'GET',
                     responseType: 'Json',
+                    headers: {
+                        'Authorization': 'bearer ' + token.token, // Include the token in the request headers
+                    },
 
                 }).then((response) => {
                     this.chessNode = response.data.chessNode;
@@ -118,6 +212,7 @@
                 var matrixNodeEnd = matrix[nodeEnd.i][nodeEnd.j];
                 var removeNode = null;
 
+                //code quân mã
                 if(id.indexOf("ma")>=0){
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
                     var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
@@ -198,10 +293,12 @@
                 if (id.indexOf("phao") >= 0) {
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
                     var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+
                     if (!((gapI >= 1 && gapJ == 0) || (gapI == 0 && gapJ >= 1))) {
                         return;
                     }
 
+                    var flag = true;
 
                     if (matrixNodeEnd.id !== "") {
                         if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
@@ -214,39 +311,34 @@
                         var minJ = Math.min(nodeStart.j, nodeEnd.j);
                         var maxJ = Math.max(nodeStart.j, nodeEnd.j);
 
+                        var count = 0; 
                         for (let i = minI + 1; i < maxI; i++) {
-                            for (let j = minJ + 1; j < maxJ; j++) {
-                                if (matrix[i][j].id !== "") {
-                                    return;
-                                }
+                            if (nodeEnd.i < nodeStart.i && matrix[i][nodeStart.j].id != "") {
+                                count ++;
+                            }
+                            if (nodeEnd.i > nodeStart.i && matrix[i][nodeStart.j].id != "") {
+                                count++;
+                            }
+                        }
+                        for (let j = minJ + 1; j < maxJ; j++) {
+
+                            if (nodeEnd.j < nodeStart.j && matrix[nodeStart.i][j].id != "") {
+                                count++;
+                            }
+                            if (nodeEnd.j > nodeStart.j && matrix[nodeStart.i][j].id != "") {
+                                count ++;
                             }
                         }
 
+                        if (count != 1) {
+                            return;
+                        }
                         removeNode = {};
                         removeNode.id = matrixNodeEnd.id;
-                    } else {
-                        if (gapJ === 1) {
-                            var minJ = Math.min(nodeStart.j, nodeEnd.j);
-                            var maxJ = Math.max(nodeStart.j, nodeEnd.j);
-                            for (let j = minJ + 1; j < maxJ; j++) {
-                                if (matrix[nodeStart.i][j].id != "") {
-                                    return;
-                                }
-                            }
-                        }
-
-                        if (gapI === 1) {
-                            var minI = Math.min(nodeStart.i, nodeEnd.i);
-                            var maxI = Math.max(nodeStart.i, nodeEnd.i);
-                            for (let i = minI + 1; i < maxI; i++) {
-                                if (matrix[i][nodeStart.j].id != "") {
-                                    return;
-                                }
-                            }
-                        }
                     }
-                }
 
+                    
+                }
                 //Phần code quân sĩ của Khang
                 if (id.indexOf("si") >= 0) {
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
@@ -270,15 +362,16 @@
                     }
                 }
                 ////Phần code Tướng của Anh
-                if (id.indexOf("chutuong") >= 0) {
+                if (id.indexOf("vua") >= 0) {
                     var gapI = Math.abs(nodeEnd.i - nodeStart.i);
                     var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
-                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
-                        return;
-                    }
                     if (!((gapI == 0 && gapJ == 1) || (gapI == 1 && gapJ == 0))) {
                         return;
                     }
+                    if (!((nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i <= 2) || (nodeEnd.j >= 3 && nodeEnd.j <= 5 && nodeEnd.i >= 7))) {
+                        return;
+                    }
+                    
                     var flag = true;
 
                     if (matrixNodeEnd.id != "") {
@@ -315,24 +408,88 @@
                         removeNode.id = matrixNodeEnd.id;
                     }
                 }
+
+                //Phần code tượng của Min
+                if (id.indexOf("tuong") >= 0) {
+                    var gapI = Math.abs(nodeEnd.i - nodeStart.i);
+                    var gapJ = Math.abs(nodeEnd.j - nodeStart.j);
+                    if (!(gapI == 2 && gapJ == 2)) {
+                        return;
+                    }
+                    var flag = true;
+
+                    if (matrixNodeEnd.id != "") {
+                        if ((id.indexOf("do") >= 0 && matrixNodeEnd.id.indexOf("do") >= 0)
+                            || (id.indexOf("den") >= 0 && matrixNodeEnd.id.indexOf("den") >= 0)) {
+                            return;
+                        }
+                        removeNode = {};
+                        removeNode.id = matrixNodeEnd.id;
+                    } 
+                    if (id.indexOf("do") >= 0) {
+                        if (!((nodeEnd.i <= 5))) {
+                            return;
+                        }
+                    }
+                    if (id.indexOf("den") >= 0) {
+                        if (!((nodeEnd.i >= 5))) {
+                            return;
+                        }
+                    }
+                    if (gapI == 2 && gapJ == 2) {
+                        if(nodeStart.j < nodeEnd.j){
+                            if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 1][nodeStart.j + 1].id != "") {
+                                return;
+                            }
+                            if (nodeEnd.i < nodeStart.i && matrix[nodeStart.i - 1][nodeStart.j + 1].id != "") {
+                                return;
+                            }
+                        }
+                        if (nodeStart.j > nodeEnd.j) {
+                            if (nodeEnd.i > nodeStart.i && matrix[nodeStart.i + 1][nodeStart.j - 1].id != "") {
+                                return;
+                            }
+                            if (nodeEnd.i < nodeStart.i && matrix[nodeStart.i - 1][nodeStart.j - 1].id != "") {
+                                return;
+                            }
+                        }
+                    }
+                }
+                
                 var para = [{ id: id, fromi: nodeStart.i, fromj: nodeStart.j, toi: nodeEnd.i, toj: nodeEnd.j}]
                 if(removeNode!=null){
                     para.push(removeNode);
                 }
+                const token = JSON.parse(localStorage.getItem('userData'));
+                var connect = localStorage.getItem('connect');
+                //const roomId = JSON.parse(localStorage.getItem('roomId'));
                 axios({
                     url: '/api/chess/movechess',
                     method: 'POST',
                     responseType: 'Json',
-                    data: para
+                    data: {
+                        moveNodeList: para,
+                        connect: connect  // Thêm giá trị connect vào dữ liệu gửi đi
+                    },
+                    headers: {
+                        'Authorization': 'bearer ' + token.token, // Include the token in the request headers
+                    },
 
                 }).then((response) => {
 
 
                 });
-            }
+            },
+            login: function () {
+                var defaultRouteUrl = document.getElementById('default-route-url').getAttribute('data-url');
+                window.location.href = defaultRouteUrl;
+            },
+           
         },
         mounted:function(){
             this.getChessNodes();
+            let connectionId="";
+            //const roomId =localStorage.getItem('userData');
             var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
             connection.on("ReceiveChessMove", function (message) {
                 console.log(message);
@@ -349,7 +506,37 @@
                     temp.style.display="none";
                 }
             });
-            connection.start();
+            connection.start().then(() => {
+                console.log(connection.connectionId);
+                    connectionId = connection.connectionId;
+                    localStorage.setItem('connect', connectionId);
+                });
+        }
+    });
+</script>   
+<script>
+    var app= new Vue({
+        el:'#exit',
+        data: {
+            roomId: localStorage.getItem('roomId'),
+        },
+        methods: {
+            RemoveInsertInRoom() {
+                const token = JSON.parse(localStorage.getItem('userData'));
+                
+                axios({
+                    url: '/api/Chess/removeUserInRoom/',
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'bearer ' + token.token,
+                    },
+                }).then((response) => {
+                    //localStorage.removeItem('roomId');
+                    window.location.href = '/Home/List'; // Đảm bảo rằng đường dẫn đến trang 'List' là đúng
+                });
+            },
+        },
+        mounted: function () {
         }
     });
 </script>
